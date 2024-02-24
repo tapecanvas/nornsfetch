@@ -17,4 +17,4 @@
 in maiden, enter `;install https://github.com/tapecanvas/nornsfetch`
 
 ## todo
-- detect if factory or if shield and display appropriate ascii norns
+- detect factory norns or shield and display appropriate ascii norns
