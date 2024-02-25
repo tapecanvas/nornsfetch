@@ -13,6 +13,7 @@
 - screen resolution
 - norns release version
 - cute ascii norns (:
+  - e2 switches between norns and shield 
 
 ## install
 in maiden, enter `;install https://github.com/tapecanvas/nornsfetch`
