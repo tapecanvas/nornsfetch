@@ -13,12 +13,15 @@
 - screen resolution
 - norns release version
 - cute ascii norns (:
-  - e2 switches between norns and shield 
+  - e2 switches between norns and shield ascii art
 
 ## install
 in maiden, enter `;install https://github.com/tapecanvas/nornsfetch`
 
 ## todo
+- [ ] add disk info (free/total) entry
+- [ ] add "no-ascii" option
+    - display more sys info (longer lines / more verbose, or 2 col readout w/ more entries) 
 
 ### archive
 - [x] [detect factory norns or shield](https://monome.org/docs/norns/api/modules/norns.html) and display appropriate ascii norns
