@@ -1,5 +1,5 @@
 # nornsfetch
-> neofetch style system info for norns
+> neofetch style system info for norns w/ cute ascii norns
 
 ## screenshots
 
