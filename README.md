@@ -3,7 +3,7 @@
 
 ## screenshots
 
-![screenshot showing ascii art norns and system info displayed on norns screen](screenshot.png)
+![screenshot showing ascii art norns and system info displayed on norns screen](nornsfetch).png)
 
 norns ascii
 
