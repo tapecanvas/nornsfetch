@@ -6,6 +6,8 @@
 --     ------------------------
 --         by @tapecanvas
 --                v1.1
+-- e2 switches between screens
+
 
 function os.capture(cmd, raw)
   local f = assert(io.popen(cmd, 'r'))
