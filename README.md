@@ -26,4 +26,4 @@ norns ascii, shield ascii, and more info screenshots
 
 
 ## install
-in maiden, enter `;install https://github.com/tapecanvas/nornsfetch`
+through the maiden script library or by entering `;install https://github.com/tapecanvas/nornsfetch` in the maiden console
