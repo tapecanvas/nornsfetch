@@ -5,11 +5,15 @@
 --      n  n ooo r   n  n ss
 --     ------------------------
 --         by @tapecanvas
---                v1.1
+--                v1.1.1
 -- e2 switches between screens
 
+local util = require "util"
+local sysInfo = {}
+local moreInfo = {}
+local scrollIndex = 1
 
-function os.capture(cmd, raw)
+local function os_capture(cmd, raw)
   local f = assert(io.popen(cmd, 'r'))
   local s = assert(f:read('*a'))
   f:close()
@@ -20,10 +24,9 @@ function os.capture(cmd, raw)
   return s
 end
 
--- handles uptime output whether its just minutes, or days, hours, and minutes.
-function parseUptime(uptimeStr)
+local function parse_uptime(uptime_str)
   local uptime = { days = 0, hours = 0, minutes = 0 }
-  for num, unit in string.gmatch(uptimeStr, "(%d+)%s(%a+)") do
+  for num, unit in string.gmatch(uptime_str, "(%d+)%s(%a+)") do
     if unit == "day" or unit == "days" then
       uptime.days = num
     elseif unit == "hour" or unit == "hours" then
@@ -35,7 +38,6 @@ function parseUptime(uptimeStr)
   return uptime
 end
 
--- encoder 2 changes the ascii art between factory and shield norns
 function enc(n, delta)
   if n == 2 then
     params:delta("ascii_art", delta)
@@ -43,8 +45,7 @@ function enc(n, delta)
   end
 end
 
-function drawNornsText()
-  -- ascii norns text
+local function draw_norns_text()
   screen.level(15)
   screen.move(0, 12)
   screen.text("nnn  ooo rrr nnn   ss")
@@ -55,7 +56,7 @@ function drawNornsText()
   screen.font_size(8)
 end
 
-function nornsAscii()
+local function norns_ascii()
   screen.move(3, 30)
   screen.text("+------------+") -- top
   screen.move(4, 36)
@@ -94,7 +95,7 @@ function nornsAscii()
   screen.text("+------------+") -- bottom
 end
 
-function shieldAscii()
+local function shield_ascii()
   screen.move(11, 30)
   screen.text("+---------+") -- top
   screen.move(43, 37)
@@ -141,18 +142,18 @@ function shieldAscii()
   screen.text("+---------+") -- bottom
 end
 
-function displayInfo()
-  local infoStart = 69 -- starts drawing sys info at x = 70 (right side of screen)
+local function display_info()
+  local info_start = 69
   for i = scrollIndex, scrollIndex + 8 do
     if sysInfo[i] then
       screen.font_size(8)
-      screen.move(infoStart, (i - scrollIndex + 1) * 8)
+      screen.move(info_start, (i - scrollIndex + 1) * 8)
       screen.text(sysInfo[i])
     end
   end
 end
 
-function displayMoreInfo()
+local function display_more_info()
   local rightStartLine = 1 -- adjust this to the line where right side should start
   for i = 1, 7 do
     if moreInfo[i] then
@@ -172,47 +173,43 @@ function displayMoreInfo()
   end
 end
 
+-- run commands and capture information
 function init()
-  -- param to switch ascii norns
+  -- param to switch between screens
   params:add { type = "option", id = "ascii_art", name = "ASCII Art", options = { "norns", "shield", "none" }, default = 1 }
 
-  -- initialize scroll index
-  scrollIndex = 1 -- scroll is not used currently, but could be used later to scroll through sys info if the list grows
+  local uptime_str = os_capture("uptime -p")
+  local uptime = parse_uptime(uptime_str)
+  local uptime_display = string.format("up %dd %dh %dm", uptime.days, uptime.hours, uptime.minutes)
 
-  -- builds formatted uptime string
-  local uptimeStr = os.capture("uptime -p")
-  local uptime = parseUptime(uptimeStr)
-  local uptimeDisplay = string.format("up %dd %dh %dm", uptime.days, uptime.hours, uptime.minutes)
-
-  -- run commands and capture information
   sysInfo = {
-    os.capture("whoami") .. "@" .. os.capture("uname -n"),
-    os.capture("hostname -I"),
-    uptimeDisplay,
-    "pkgs " .. os.capture("dpkg-query -f '.\n' -W | wc -l"),
-    "scripts " .. os.capture("ls /home/we/dust/code | wc -l"),
-    "disk " .. os.capture([[df -h -t ext4 --output=size,used | awk '{if ($1w != "Size") print $2 "/" $1}']]),
+    os_capture("whoami") .. "@" .. os_capture("uname -n"),
+    os_capture("hostname -I"),
+    uptime_display,
+    "pkgs " .. os_capture("dpkg-query -f '.\n' -W | wc -l"),
+    "scripts " .. os_capture("ls /home/we/dust/code | wc -l"),
+    "disk " .. os_capture([[df -h -t ext4 --output=size,used | awk '{if ($1w != "Size") print $2 "/" $1}']]),
     "res 128x64",
-    "ver " .. os.capture("cat ~/version.txt")
+    "ver " .. os_capture("cat ~/version.txt")
   }
 
   moreInfo = {
     -- left side
     "system info: ",
-    "disk " .. os.capture([[df -h -t ext4 --output=size,used | awk '{if ($1w != "Size") print $2 "/" $1}']]),
-    uptimeDisplay,
-    "ker " .. os.capture([[uname -r | cut --delimiter="-" --fields=1]]),
+    "disk " .. os_capture([[df -h -t ext4 --output=size,used | awk '{if ($1w != "Size") print $2 "/" $1}']]),
+    uptime_display,
+    "ker " .. os_capture([[uname -r | cut --delimiter="-" --fields=1]]),
     "res 128x64",
-    "pkgs " .. os.capture("dpkg-query -f '.\n' -W | wc -l"),
+    "pkgs " .. os_capture("dpkg-query -f '.\n' -W | wc -l"),
     "temp " .. norns.temp .. "c",
     -- right side
     "norns info: ",
-    "ver " .. os.capture("cat ~/version.txt"),
-    os.capture("whoami") .. "@" .. os.capture("uname -n"),
-    os.capture("iwgetid -r"),
-    os.capture("hostname -I"),
-    os.capture("ls /home/we/dust/code | wc -l") .. " scripts",
-    "/audio " .. os.capture("du -sh /home/we/dust/audio | cut --fields=1")
+    "ver " .. os_capture("cat ~/version.txt"),
+    os_capture("whoami") .. "@" .. os_capture("uname -n"),
+    os_capture("iwgetid -r"),
+    os_capture("hostname -I"),
+    os_capture("ls /home/we/dust/code | wc -l") .. " scripts",
+    "/audio " .. os_capture("du -sh /home/we/dust/audio | cut --fields=1")
   }
   redraw()
 end
@@ -222,22 +219,18 @@ function redraw()
   screen.font_size(5)
   screen.font_face(1)
 
-  -- factory norns ascii art
   if params:get("ascii_art") == 1 then
-    drawNornsText()
-    nornsAscii()
-    displayInfo()
-
-    -- norns shield ascii art
+    draw_norns_text()
+    norns_ascii()
+    display_info()
   elseif params:get("ascii_art") == 2 then
-    drawNornsText()
-    shieldAscii()
-    displayInfo()
-
-    -- no ascii, just sys info
+    draw_norns_text()
+    shield_ascii()
+    display_info()
   elseif params:get("ascii_art") == 3 then
-    displayMoreInfo()
+    display_more_info()
   end
 
   screen.update()
 end
+
