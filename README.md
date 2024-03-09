@@ -22,7 +22,7 @@ norns ascii, shield ascii, and more info screenshots
 - screen resolution
 - norns release version
 - cute ascii norns (:
-- more info display adds kernell version, temperature, ssid, and /audio directory size
+- more info display adds kernel version, temperature, ssid, and /audio directory size
 
 
 ## install
