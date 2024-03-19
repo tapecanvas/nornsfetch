@@ -5,24 +5,13 @@
 --      n  n ooo r   n  n ss
 --     ------------------------
 --         by @tapecanvas
---                v1.1.1
+--                v1.2
 -- e2 switches between screens
 
 local util = require "util"
 local sysInfo = {}
 local moreInfo = {}
 local scrollIndex = 1
-
-local function os_capture(cmd, raw)
-  local f = assert(io.popen(cmd, 'r'))
-  local s = assert(f:read('*a'))
-  f:close()
-  if raw then return s end
-  s = string.gsub(s, '^%s+', '')
-  s = string.gsub(s, '%s+$', '')
-  s = string.gsub(s, '[\n\r]+', ' ')
-  return s
-end
 
 local function parse_uptime(uptime_str)
   local uptime = { days = 0, hours = 0, minutes = 0 }
@@ -178,38 +167,38 @@ function init()
   -- param to switch between screens
   params:add { type = "option", id = "ascii_art", name = "ASCII Art", options = { "norns", "shield", "none" }, default = 1 }
 
-  local uptime_str = os_capture("uptime -p")
+  local uptime_str = util.os_capture("uptime -p")
   local uptime = parse_uptime(uptime_str)
   local uptime_display = string.format("up %dd %dh %dm", uptime.days, uptime.hours, uptime.minutes)
 
   sysInfo = {
-    os_capture("whoami") .. "@" .. os_capture("uname -n"),
-    os_capture("hostname -I"),
+    util.os_capture("whoami") .. "@" .. util.os_capture("uname -n"),
+    util.os_capture("hostname -I"),
     uptime_display,
-    "pkgs " .. os_capture("dpkg-query -f '.\n' -W | wc -l"),
-    "scripts " .. os_capture("ls /home/we/dust/code | wc -l"),
-    "disk " .. os_capture([[df -h -t ext4 --output=size,used | awk '{if ($1w != "Size") print $2 "/" $1}']]),
+    "pkgs " .. util.os_capture("dpkg-query -f '.\n' -W | wc -l"),
+    "scripts " .. util.os_capture("ls /home/we/dust/code | wc -l"),
+    "disk " .. util.os_capture([[df -h -t ext4 --output=size,used | awk '{if ($1w != "Size") print $2 "/" $1}']]),
     "res 128x64",
-    "ver " .. os_capture("cat ~/version.txt")
+    "ver " .. util.os_capture("cat ~/version.txt")
   }
 
   moreInfo = {
     -- left side
     "system info: ",
-    "disk " .. os_capture([[df -h -t ext4 --output=size,used | awk '{if ($1w != "Size") print $2 "/" $1}']]),
+    "disk " .. util.os_capture([[df -h -t ext4 --output=size,used | awk '{if ($1w != "Size") print $2 "/" $1}']]),
     uptime_display,
-    "ker " .. os_capture([[uname -r | cut --delimiter="-" --fields=1]]),
+    "ker " .. util.os_capture([[uname -r | cut --delimiter="-" --fields=1]]),
     "res 128x64",
-    "pkgs " .. os_capture("dpkg-query -f '.\n' -W | wc -l"),
+    "pkgs " .. util.os_capture("dpkg-query -f '.\n' -W | wc -l"),
     "temp " .. norns.temp .. "c",
     -- right side
     "norns info: ",
-    "ver " .. os_capture("cat ~/version.txt"),
-    os_capture("whoami") .. "@" .. os_capture("uname -n"),
-    os_capture("iwgetid -r"),
-    os_capture("hostname -I"),
-    os_capture("ls /home/we/dust/code | wc -l") .. " scripts",
-    "/audio " .. os_capture("du -sh /home/we/dust/audio | cut --fields=1")
+    "ver " .. util.os_capture("cat ~/version.txt"),
+    util.os_capture("whoami") .. "@" .. util.os_capture("uname -n"),
+    util.os_capture("iwgetid -r"),
+    util.os_capture("hostname -I"),
+    util.os_capture("ls /home/we/dust/code | wc -l") .. " scripts",
+    "/audio " .. util.os_capture("du -sh /home/we/dust/audio | cut --fields=1")
   }
   redraw()
 end
@@ -233,4 +222,3 @@ function redraw()
 
   screen.update()
 end
-
