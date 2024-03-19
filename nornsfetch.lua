@@ -11,7 +11,6 @@
 local util = require "util"
 local sysInfo = {}
 local moreInfo = {}
-local scrollIndex = 1
 
 local function parse_uptime(uptime_str)
   local uptime = { days = 0, hours = 0, minutes = 0 }
@@ -133,22 +132,21 @@ end
 
 local function display_info()
   local info_start = 69
-  for i = scrollIndex, scrollIndex + 8 do
+  for i = 1, 8 do
     if sysInfo[i] then
       screen.font_size(8)
-      screen.move(info_start, (i - scrollIndex + 1) * 8)
+      screen.move(info_start, (i) * 8)
       screen.text(sysInfo[i])
     end
   end
 end
 
 local function display_more_info()
-  local rightStartLine = 1 -- adjust this to the line where right side should start
-  for i = 1, 7 do
+  for i = 1, 8 do
     if moreInfo[i] then
       screen.font_face(1)
       screen.font_size(8)
-      screen.move(0, (i - scrollIndex + 1) * 9)
+      screen.move(0, (i) * 9)
       screen.text(moreInfo[i])
     end
   end
